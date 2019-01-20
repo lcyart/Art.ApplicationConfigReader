@@ -104,9 +104,7 @@ namespace Art.ConfigurationReader.UI.Controllers
 			{
 				return NotFound();
 			}
-			//Get the database connection
 			mongoDatabase = GetMongoDatabase();
-			//fetch the details from CustomerDB based on id and pass into view
 			var applicationConfig = mongoDatabase.GetCollection<ApplicationConfig>("ApplicationConfig").Find<ApplicationConfig>(k => k.ID == id).FirstOrDefault();
 			if (applicationConfig == null)
 			{
