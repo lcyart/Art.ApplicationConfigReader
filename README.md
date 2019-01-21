@@ -19,8 +19,10 @@ Kütüphane initialize edildiğinde config veritabanı içerisine ApplicationCon
 **Kontrol Panel**
 - **Art.ConfigurationReader.UI** Storage üzerinde Ekleme, Silme, Güncelleme, Listeleme ve Filtreleme işlemlerinin yapılabildiği ASP.NET Core MVC uygulamasıdır. Storage connection stringi parametrik değildir. Home Controller altında aşağıdaki methodun aktif Storage'e göre güncellenmesi gerekmektedir.
 
+```
 public IMongoDatabase GetMongoDatabase()
-		{
-			var mongoClient = new MongoClient("mongodb://localhost:27017");
-			return mongoClient.GetDatabase("config");
-		}
+{
+	var mongoClient = new MongoClient("mongodb://localhost:27017");
+	return mongoClient.GetDatabase("config");
+}
+```
