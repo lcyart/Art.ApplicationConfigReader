@@ -16,4 +16,4 @@ GetConfigurationListJSON Methodu String tipinde JSON verisi olarak aktif olan ko
 
 GetValue<T>(string key) Methodu T ile belirtilen tipte key alanında gönderilen veriyi Storage üzerinde Name ile eşleyerek bulunan değeri dönmektedir.
 
-Art.ConfigurationReader.UI Storage üzerinde Ekleme, Silme, Güncelleme, Listeleme ve Filtreleme işlemlerinin yapılabildiği ASP.NET Core uygulamasıdır.
+Art.ConfigurationReader.UI Storage üzerinde Ekleme, Silme, Güncelleme, Listeleme ve Filtreleme işlemlerinin yapılabildiği ASP.NET Core MVC uygulamasıdır.
