@@ -12,8 +12,8 @@ Kütüphane initialize edildiğinde config veritabanı içerisine ApplicationCon
 
 **Methodlar**
 
-- **client.GetConfigurationListJSON()** Methodu String tipinde JSON verisi olarak aktif olan konfigürasyon verilerini dönmektedir.
+- **client.GetConfigurationListJSON()** Methodu Aktif konfigürasyon kayıtlarını JSON string olarak dönmektedir.
 
-- **client.GetValue<T>(string key)** Methodu T ile belirtilen tipte key alanında gönderilen veriyi Storage üzerinde Name parametresine karşılık gelen değeri dönmektedir.
+- **client.GetValue<T>(string key)** Methodu T ile belirtilen tipteki key değerini Storage üzerinde arayarak eşleşen değeri dönmektedir.
 
 - **Art.ConfigurationReader.UI** Storage üzerinde Ekleme, Silme, Güncelleme, Listeleme ve Filtreleme işlemlerinin yapılabildiği ASP.NET Core MVC uygulamasıdır.
