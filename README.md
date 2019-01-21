@@ -1,7 +1,5 @@
 # Art.ApplicationConfigReader
 
-Uygulama Kullanım
-
 Kütüphane aşağıdaki kod ile initialize edilir.
 
 var client = new ConfigurationReader(serviceName, connectionString, refreshInterval);
