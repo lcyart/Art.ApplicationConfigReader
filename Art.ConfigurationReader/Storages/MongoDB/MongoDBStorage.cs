@@ -71,10 +71,24 @@ namespace Art.ConfigurationReader.Storages.MongoDB
 
         private void SyncActiveItems()
         {
-            var result = _configCollection.Find(config => config.ApplicationName == _applicationName && config.IsActive == true).ToList();
-            foreach (var item in result)
+            if (!isBusy)
             {
-                string x = item.Name;
+                isBusy = true;
+                var result = _configCollection.Find(config => config.ApplicationName == _applicationName && config.IsActive == true).ToList();
+                cacheList = new List<ApplicationConfig>();
+                foreach (var item in result)
+                {
+                    ApplicationConfig ac = new ApplicationConfig();
+                    ac._id = item._id;
+                    ac.ID = item.ID;
+                    ac.Name = item.Name;
+                    ac.Type = item.Type;
+                    ac.Value = Convert.ChangeType(item.Value, Helper.TypeHelper.FindStringType(item.Type));
+                    ac.IsActive = item.IsActive;
+                    ac.ApplicationName = item.ApplicationName;
+                    cacheList.Add(ac);
+                }
+                isBusy = false;
             }
         }
 
@@ -89,6 +103,7 @@ namespace Art.ConfigurationReader.Storages.MongoDB
                 {
                     ApplicationConfig ac = new ApplicationConfig();
                     ac._id = item._id;
+                    ac.ID = item.ID;
                     ac.Name = item.Name;
                     ac.Type = item.Type;
                     ac.Value = Convert.ChangeType(item.Value, Helper.TypeHelper.FindStringType(item.Type));
