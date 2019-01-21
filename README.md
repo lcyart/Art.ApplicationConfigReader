@@ -6,7 +6,7 @@ Kütüphane aşağıdaki kod ile initialize edilir.
 
 - serviceName =Kullanılacak servisin adını tanımlar. Ex: "SERVICE-A"
 - connectionString =Storage için verilecek olan bağlantı metinini tanımlar. Ex: mongodb://localhost:27017/config
-- refreshInterval=Sistemin değişiklikleri kaç dakikada bir kontrol edeceğini belirler. Ex: 3000
+- refreshInterval=Sistemin değişiklikleri kaç milisaniyede bir kontrol edeceğini belirler. Ex: 3000
 
 Kütüphane initialize edildiğinde config veritabanı içerisine ApplicationConfig koleksiyonunu yaratacaktır ve koleksiyonu otomatik dolduracaktır. Bu sebeple test işlemlerini yaparken öncelikle ConfigurationReaderApp konsol uygulamasını çalıştırın.
 
