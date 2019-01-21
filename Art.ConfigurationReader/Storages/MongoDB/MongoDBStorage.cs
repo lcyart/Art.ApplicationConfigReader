@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-
+using MongoDB.Bson;
 
 namespace Art.ConfigurationReader.Storages.MongoDB
 {
@@ -38,8 +38,21 @@ namespace Art.ConfigurationReader.Storages.MongoDB
                 var mongoUrl = new MongoUrl(_connectionString);
                 _client = new MongoClient(mongoUrl);
                 _database = _client.GetDatabase(mongoUrl.DatabaseName);
-                _configCollection = _database.GetCollection<ApplicationConfig>("ApplicationConfig");
 
+                _configCollection = _database.GetCollection<ApplicationConfig>("ApplicationConfig");
+                try
+                {
+                    _database.CreateCollection("ApplicationConfig");
+                    _configCollection = _database.GetCollection<ApplicationConfig>("ApplicationConfig");
+                    _configCollection.InsertOne(new ApplicationConfig { ID = 1, Name = "SiteName", Type = "String", Value = "x", IsActive = true, ApplicationName = "SERVICE-A" });
+                    _configCollection.InsertOne(new ApplicationConfig { ID = 2, Name = "IsBasketEnabled", Type = "Boolean", Value = "true", IsActive = true, ApplicationName = "SERVICE-B" });
+                    _configCollection.InsertOne(new ApplicationConfig { ID = 3, Name = "MaxItemCount", Type = "Int", Value = "50", IsActive = true, ApplicationName = "SERVICE-A" });
+                }
+                catch (Exception ex)
+                {
+
+
+                }
                 isBusy = false;
                 StartSync();
             }
@@ -112,7 +125,7 @@ namespace Art.ConfigurationReader.Storages.MongoDB
             }
             catch (Exception ex)
             {
-                throw new Exception("Formta Çevrilemedi!", ex.InnerException);
+                throw new Exception("Format Çevrilemedi!", ex.InnerException);
             }
         }
     }
