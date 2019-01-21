@@ -40,7 +40,7 @@ namespace Art.ConfigurationReader.Storages.MongoDB
                 _database = _client.GetDatabase(mongoUrl.DatabaseName);
 
                 _configCollection = _database.GetCollection<ApplicationConfig>("ApplicationConfig");
-                try
+                if (_configCollection.Find(_ => true).ToList().Count == 0)
                 {
                     _database.CreateCollection("ApplicationConfig");
                     _configCollection = _database.GetCollection<ApplicationConfig>("ApplicationConfig");
@@ -48,11 +48,7 @@ namespace Art.ConfigurationReader.Storages.MongoDB
                     _configCollection.InsertOne(new ApplicationConfig { ID = 2, Name = "IsBasketEnabled", Type = "Boolean", Value = "true", IsActive = true, ApplicationName = "SERVICE-B" });
                     _configCollection.InsertOne(new ApplicationConfig { ID = 3, Name = "MaxItemCount", Type = "Int", Value = "50", IsActive = true, ApplicationName = "SERVICE-A" });
                 }
-                catch (Exception ex)
-                {
 
-
-                }
                 isBusy = false;
                 StartSync();
             }
