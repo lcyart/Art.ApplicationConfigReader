@@ -1,6 +1,6 @@
 # Art.ApplicationConfigReader
 
-Kütüphane aşağıdaki kod ile initialize edilir.
+Kütüphane aşağıdaki kod ile initialize edilir ve storage olarak MongoDB ile çalışır.
 
 **var client = new ConfigurationReader(serviceName, connectionString, refreshInterval);**
 
