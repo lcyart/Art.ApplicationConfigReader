@@ -2,13 +2,15 @@
 
 Kütüphane aşağıdaki kod ile initialize edilir.
 
+var client = new ConfigurationReader(serviceName, connectionString, refreshInterval);
+
 serviceName=Kullanılacak servisin adını tanımlar. Ex: "SERVICE-A"
 
 connectionString=Storage için verilecek olan bağlantı metinini tanımlar. Ex: mongodb://localhost:27017/config
 
 refreshInterval=Sistemin değişiklikleri kaç dakikada bir kontrol edeceğini belirler. Ex: 3000
 
-var client = new ConfigurationReader(serviceName, connectionString, refreshInterval);
+
 
 Kütüphane initialize edildiğinde config veritabanı içerisine ApplicationConfig koleksiyonunu yaratacaktır ve koleksiyonu otomatik dolduracaktır. Bu sebeple test işlemlerini yaparken öncelikle ConfigurationReaderApp konsol uygulamasını çalıştırın.
 
