@@ -17,6 +17,8 @@ namespace ConfigurationReaderApp
             Console.WriteLine(client.GetConfigurationListJSON());
             Console.WriteLine(client.GetValue<int>("MaxItemCount"));
             Console.WriteLine(client.GetValue<string>("SiteName"));
+            Thread.Sleep(10000);
+            Console.WriteLine(client.GetConfigurationListJSON());
             Console.ReadKey();
         }
     }

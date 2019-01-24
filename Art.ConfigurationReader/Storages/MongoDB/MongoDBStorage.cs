@@ -4,14 +4,13 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Timers;
-using MongoDB.Bson;
+using System.Threading;
+using System.Collections.Concurrent;
 
 namespace Art.ConfigurationReader.Storages.MongoDB
 {
-    class MongoDBStorage : IStorageProvider
+    class MongoDBStorage : IStorageProvider, IDisposable
     {
         private IMongoClient _client;
         private IMongoDatabase _database;
@@ -19,8 +18,7 @@ namespace Art.ConfigurationReader.Storages.MongoDB
         private string _connectionString;
         private string _applicationName;
         private int _refreshTimerIntervalInMs;
-        private List<ApplicationConfig> cacheList;
-        private bool isBusy;
+        private ConcurrentDictionary<string, ApplicationConfig> _cacheList;
 
         public MongoDBStorage(string applicationName, string connectionString, int refreshTimerIntervalInMs)
         {
@@ -49,12 +47,11 @@ namespace Art.ConfigurationReader.Storages.MongoDB
                     _configCollection.InsertOne(new ApplicationConfig { ID = 3, Name = "MaxItemCount", Type = "Int", Value = "50", IsActive = true, ApplicationName = "SERVICE-A" });
                 }
 
-                isBusy = false;
                 StartSync();
             }
             catch (Exception ex)
             {
-                throw new Exception("Bağlantı Kurulamadı! Lütfen Sunucu Adresinizi Kontrol Ediniz!", ex.InnerException);
+                throw new Exception("Connection Error! Please Check Connection String!", ex.InnerException);
             }
         }
 
@@ -65,79 +62,69 @@ namespace Art.ConfigurationReader.Storages.MongoDB
 
             var timer = new System.Threading.Timer((e) =>
             {
-                SyncActiveItemsAsync().GetAwaiter().GetResult();
+                SyncActiveItemsAsync();
             }, null, startTimeSpan, periodTimeSpan);
         }
 
-        private void SyncActiveItems()
+        private void SyncActiveItemsAsync()
         {
-            if (!isBusy)
+            var result = GetConfigValues();
+            _cacheList = new ConcurrentDictionary<string, ApplicationConfig>();
+            foreach (KeyValuePair<string, ApplicationConfig> configItem in result)
             {
-                isBusy = true;
-                var result = _configCollection.Find(config => config.ApplicationName == _applicationName && config.IsActive == true).ToList();
-                cacheList = new List<ApplicationConfig>();
-                foreach (var item in result)
-                {
-                    ApplicationConfig ac = new ApplicationConfig();
-                    ac._id = item._id;
-                    ac.ID = item.ID;
-                    ac.Name = item.Name;
-                    ac.Type = item.Type;
-                    ac.Value = Convert.ChangeType(item.Value, Helper.TypeHelper.FindStringType(item.Type));
-                    ac.IsActive = item.IsActive;
-                    ac.ApplicationName = item.ApplicationName;
-                    cacheList.Add(ac);
-                }
-                isBusy = false;
-            }
-        }
-
-        private async Task SyncActiveItemsAsync()
-        {
-            if (!isBusy)
-            {
-                isBusy = true;
-                var result = await _configCollection.Find(config => config.ApplicationName == _applicationName && config.IsActive == true).ToListAsync();
-                cacheList = new List<ApplicationConfig>();
-                foreach (var item in result)
-                {
-                    ApplicationConfig ac = new ApplicationConfig();
-                    ac._id = item._id;
-                    ac.ID = item.ID;
-                    ac.Name = item.Name;
-                    ac.Type = item.Type;
-                    ac.Value = Convert.ChangeType(item.Value, Helper.TypeHelper.FindStringType(item.Type));
-                    ac.IsActive = item.IsActive;
-                    ac.ApplicationName = item.ApplicationName;
-                    cacheList.Add(ac);
-                }
-                isBusy = false;
+                ApplicationConfig appConfig;
+                if (_cacheList.TryGetValue(configItem.Key, out appConfig))
+                    _cacheList[configItem.Key] = configItem.Value;
+                else
+                    _cacheList.TryAdd(configItem.Key, configItem.Value);
             }
         }
         public string GetConfigurationListJSON()
         {
-            return JsonConvert.SerializeObject(cacheList);
+            return JsonConvert.SerializeObject(_cacheList);
         }
+
+        private ConcurrentDictionary<string, ApplicationConfig> GetConfigValues()
+        {
+            ConcurrentDictionary<string, ApplicationConfig> configValues = new ConcurrentDictionary<string, ApplicationConfig>();
+            List<ApplicationConfig> configCollection = _configCollection.Find(config => config.ApplicationName == _applicationName && config.IsActive == true).ToList();
+
+            foreach (ApplicationConfig appConfig in configCollection)
+            {
+                configValues.TryAdd(appConfig.Name, appConfig);
+            }
+
+            return configValues;
+        }
+
         public T GetValue<T>(string key)
         {
-            try
+            ApplicationConfig appConfig;
+            if (_cacheList.TryGetValue(key, out appConfig))
             {
-                object v;
-                if (cacheList != null)
+                return (T)Convert.ChangeType(appConfig.Value, typeof(T));
+            }
+
+            throw new Exception("Format Error!");
+        }
+
+        private bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
                 {
-                    var q = cacheList.Where(x => x.Name == key);
-                    v = q.Count() > 0 ? q.FirstOrDefault().Value : null;
-
+                    _cacheList = null;
                 }
-                else
-                    v = null;
+            }
+            this.disposed = true;
+        }
 
-                return (T)Convert.ChangeType(v, typeof(T));
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Format Çevrilemedi!", ex.InnerException);
-            }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
